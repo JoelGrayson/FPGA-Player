@@ -1,107 +1,121 @@
-module wave_display_tb;
-    reg clk;
-    reg reset;
-    // Simulating signals from the vga driver
+`timescale 1ns/1ps
+module wave_display_tb ();
+   
+    reg clk, reset;
     reg [10:0] x;
     reg [9:0] y;
-    reg valid;
-    // Simulating signals to/from RAM
-    wire [7:0] read_value;
+    reg valid, read_index;
+   
     wire [8:0] read_address;
-    // Simulating signal from wave_capture
-    reg read_index;
-    
+    wire [7:0] read_value;
+    wire [7:0] r, g , b;
     wire valid_pixel;
-    wire [7:0] r, g, b;
-    
-    wave_display dut(
-        .clk(clk),
-        .reset(reset),
-        .x(x),
-        .y(y),
-        .valid(valid),
-        .read_value(read_value),
-        .read_index(read_index),
-        .read_address(read_address),
-        .valid_pixel(valid_pixel),
-        .r(r),
-        .g(g),
-        .b(b)
+   
+    fake_sample_ram fr_helper(.clk(clk), .addr(read_address[7:0]), .dout(read_value));
+   
+    wave_display dut(.clk(clk),
+                     .reset(reset),
+                     .x(x),
+                     .y(y),
+                     .valid(valid),
+                     .read_value(read_value),
+                     .read_index(read_index),
+                     .read_address(read_address),
+                     .valid_pixel(valid_pixel),
+                     .r(r), .g(g), .b(b)
     );
-    
-    fake_sample_ram ram(
-        .clk(clk),
-        .addr(read_address),
-        .dout(read_value)
-    );
-    
-    
-    integer cycle; //learned about these from AI
-    initial cycle = 0;
-    
-    always begin
-        clk = 1'b1;
-        #5;
-        clk = 1'b0;
-        #5;
-        cycle = cycle + 1;
-    end
-    
+   
+    // Clock and reset
     initial begin
-        #1;
-        // In the middle of cycle 0. Setting up variablesr for cycle 1
+        clk = 1'b0;
         reset = 1'b1;
-        #10;
-        // In the middle of cycle 1. Setting up variables for cycle 2
+        repeat (4) #5 clk = ~clk;
         reset = 1'b0;
-        x = 0; //start crawling up
-        y = 3;
-        valid = 1'b1;
-        read_index = 1'b0;
-        // read_value from RAM
-        
-        // Imagine as a 5 by 5 display
-        
-        #10 x = 1; y = 0;
-        #10 x = 2;
-        #10 x = 3;
-        #10 x = 4;
-        #10 x = 5;
-        $display("Finished y = 0 on cycle %d", cycle);
-        
-        #10 x = 1; y = 1;
-        #10 x = 2;
-        #10 x = 3;
-        #10 x = 4;
-        #10 x = 5;
-        $display("Finished y = 1 on cycle %d", cycle);
-
-        #10 x = 1; y = 2;
-        #10 x = 2;
-        #10 x = 3;
-        #10 x = 4;
-        #10 x = 5;
-        $display("Finished y = 2 on cycle %d", cycle);
-        
-        #10 x = 1; y = 3;
-        #10 x = 2;
-        #10 x = 3;
-        #10 x = 4;
-        #10 x = 5;
-        $display("Finished y = 3 on cycle %d", cycle);
-        
-        #10 x = 1; y = 4;
-        #10 x = 2;
-        #10 x = 3;
-        #10 x = 4;
-        #10 x = 5;
-        $display("Finished y = 4 on cycle %d", cycle);
-        
-        #10 x = 1; y = 5;
-        #10 x = 2;
-        #10 x = 3;
-        #10 x = 4;
-        #10 x = 5;
-        $display("Finished y = 5 on cycle %d", cycle);
+        forever #5 clk = ~clk;
     end
+   
+    initial begin
+        x = 11'b00000000000;
+        y= 10'b0000000000;
+        valid = 1;
+        read_index = 0;
+        #10
+       
+        forever begin
+            repeat (1279) #10 x = x + 1;
+            #10
+            x = 0;
+            y = y+1;
+        end
+       
+        #100
+        $stop;
+    end
+    /*
+    initial begin
+        // since read_address should be 0, this should cause r,g,b to be 00, ff, 00, but valid pixel should be low
+        x = 11'b00000000000;
+        y= 10'b0000000000;
+        valid = 1;
+        read_index = 0;
+        #100
+       
+        // same as previous, but valid pixel should now be high
+        x = 11'b00100000000;
+        y= 10'b0000000000;
+        #100
+       
+        // valid pixel should still be high since x[7:1] hasn't changed
+        x = 11'b00100000001;
+        y= 10'b0000000000;
+        #100
+       
+        // valid pixel should now be low since y is not in bounds
+        x = 11'b00100000001;
+        y= 10'b1000000000;
+        #100
+       
+        // read_value should be 00000001, prev_read_value should be 00000000, so r,g,b should be 00,ff,00 for one cycle
+        // while y_coord is in the range, then read_value and prev_read_value will both be 00000001 so r,g,b should go to
+        // 00,00,00
+        x = 11'b00100000100;
+        y= 10'b0000000000;
+        #100
+       
+        // this new y value should be back in the range of x(n) and x(n-1), so r,g,b should be 00,ff,00 for a cycle
+        x = 11'b00100001000;
+        y= 10'b0000000010;
+        #100
+       
+        // this new y value should be back in the range of x(n) and x(n-1), so r,g,b should be 00,ff,00 for a cycle
+        // test for next quadrant of x
+        x = 11'b01000001000;
+        y= 10'b0010000010;
+        #100
+       
+        // this new y value should be back in the range of x(n) and x(n-1), so r,g,b should be 00,ff,00 for a cycle
+        // test for read_index high
+        read_index =  1;
+        x = 11'b01000001000;
+        y= 10'b0110000010;
+        #100
+       
+        // vga coordinates invalid should bring valid_pixel low
+        valid = 0;
+        #100
+        valid = 1;
+       
+        // valid pixel should be high for the case x[10:8] = 010 as well
+        x = 11'b01000000001;
+        y= 10'b0000000000;
+        #100
+       
+        // valid pixel should be low for the case x[10:8] = 100
+        x = 11'b10000000001;
+        y= 10'b0000000000;
+        #100
+       
+        $stop;
+    end
+    */
 endmodule
