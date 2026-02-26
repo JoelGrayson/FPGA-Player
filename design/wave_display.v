@@ -24,11 +24,13 @@ module wave_display (
     wire is_x_in_region = x >= `INIT_X && x <= `INIT_X + `WIDTH;
     wire is_y_in_region = y >= `INIT_Y && y <= `INIT_Y + `HEIGHT;
     // there are 256 data addresses and WIDTH variables, which means WIDTH/256 = 3.125 or 3 x-pixels per y-value. 
-    assign read_address = ({ read_index, x } - `INIT_X) * (9'd256 / `WIDTH); //x_scaled    
+    assign read_address = ({ read_index, x } - `INIT_X) / (`WIDTH / 9'd256); //x_scaled. /3    
     
     // Scaled y value
-    wire [7:0] y_scaled = (y - `INIT_Y) * (9'd256 / `HEIGHT);
+    wire [7:0] y_scaled = (y - `INIT_Y) / (`HEIGHT / 9'd256); //due to integer truncation, must divide by a divided ratio
     // read_address (x_scaled) used to fetch the value based on curr x positino
+    // 1 right now which is pretty useless due to integer truncatoin
+    
     // Curr y position leads to y_scaled which is compared to the data coming out which is also a byte
      // END (1)
     
@@ -66,12 +68,12 @@ module wave_display (
         ||
         // curr_y < y < p_y - wave going down
         (curr_y <= y_scaled && y_scaled <= p_y);
-//    wire is_x_beyond_artifact = !(is_x_in_region & read_address < 2'd2); //valid & first two x. used to chop off the beginning
+    wire is_x_beyond_artifact = !(is_x_in_region & read_address < 2'd2); //valid & first two x. used to chop off the beginning
     assign valid_pixel = is_y_in_region //in top half of screen
                          & is_x_in_region //in quadrant 1 or 2 x-wise
                          & is_y_in_wave
-                         & valid;
-//                         & is_x_beyond_artifact;
+                         & valid
+                         & is_x_beyond_artifact;
     assign { r, g, b } = `WHITE; //rgb will be blacked out if valid_pixel is false by the wave_display_top module
 //     // END (4)
 endmodule
