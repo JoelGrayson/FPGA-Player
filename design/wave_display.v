@@ -3,7 +3,7 @@
 
 `define INIT_X 11'd88
 `define INIT_Y 10'd32
-`define WIDTH 11'd800 // X from 88 to 888
+`define WIDTH 11'd800 // X from 88 to 888. Using 256*3 = 768
 `define HEIGHT 10'd480 // Y from 32 to 32+480=512
 
 module wave_display (
@@ -21,10 +21,10 @@ module wave_display (
     output wire [7:0] b
 );
     // BEGIN (1)
-    wire is_x_in_region = x >= `INIT_X && x <= `INIT_X + (`WIDTH / 9'd256) * 9'd256; //remove x-artifacts at end due to integer division truncation
+    wire is_x_in_region = x >= `INIT_X && x <= `INIT_X + `WIDTH; // While this is the region where it can be displayed. Act like there is a width of 4 for the pixels. This will go beyond the edge but that is ok because it will be fine for it to be truncated a little bit
     wire is_y_in_region = y >= `INIT_Y && y <= `INIT_Y + (`HEIGHT / 2'd2) + 15; //this ensures only one is shown (top vertical half, not just the bottom of the screen)
     // there are 256 data addresses and WIDTH variables, which means WIDTH/256 = 3.125 or 3 x-pixels per y-value. 
-    assign read_address = ({ read_index, x } - `INIT_X) / (`WIDTH / 9'd256); //x_scaled. /3    
+    assign read_address = ({ read_index, x } - `INIT_X) / 4; //x_scaled
     
     // Scaled y value
     wire [7:0] y_scaled = (y - `INIT_Y) / (`HEIGHT / 9'd256); //due to integer truncation, must divide by a divided ratio
