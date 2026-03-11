@@ -8,6 +8,7 @@ module tcgrom(
     // A memory is implemented using a case statement 
     always @(addr)
         case (addr)
+            // 0 0000 0000 where 
             9'h000: data = 8'b00111100; // %    ****     %
             9'h001: data = 8'b01100110; // %   **  **    %
             9'h002: data = 8'b01101110; // %   ** ***    %
