@@ -1,44 +1,15 @@
-module keyboard_signal_receiver(
+module keyboard_signal_receiver_datapath(
     input wire clk,
     input wire reset,
 
     // Passed down from the .xdc file (PMOD)
     input wire ps2_clk,
     input wire ps2_data,
+    input wire [2:0] state,
 
     output wire new_key, //one-pulse indicating new key pressed and new note should be played
     output wire [11:0] key_code //like the notes in song_rom. This is the 12-bit note that specifies 
 );
-    wire [2:0] state; //100 is IDLE, 010 is SAVING_INPUT, and 001 is TRANSMIT_KEY
-    reg [2:0] 
-
-    keyboard_signal_receiver_control ksrc(
-        .clk(clk), //same as clk_100
-        .reset(reset),
-        .ps2_clk(ps2_clk),
-        .ps2_data(ps2_data),
-        .state(state),
-
-        .new_key(new_key),
-        .key_code(key_code)
-    );
-
-
-
-    keyboard_signal_receiver_control ksrc(
-        .clk(clk), //same as clk_100
-        .reset(reset),
-        .ps2_clk(ps2_clk),
-        .ps2_data(ps2_data),
-        .state(state),
-
-        .new_key(new_key),
-        .key_code(key_code)
-    );
-
-
-
-
     // The data from the PS/2. Comes in 11 bit packet.
     wire [10:0] key_code; //11 bits from the PS/2 data cable on each clock rise. It is the PS/2 seq. The 1:8 are the actual key information that differs.
     reg [10:0] next_key_code;
@@ -53,7 +24,7 @@ module keyboard_signal_receiver(
 
 
     always @(posedge ps2_clk) begin
-
+        
     end
 endmodule
 
