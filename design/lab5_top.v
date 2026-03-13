@@ -225,10 +225,10 @@ module lab5_top(
         //.valid(valid),
 		.valid(vde),
 		.vsync(vsync),
-        .curr_note(curr_note)
+        .curr_note(curr_note),
 		.r(r_1),
 		.g(g_1),
-		.b(b_1),
+		.b(b_1)
     );
     
     assign r = r_1[7:4];
