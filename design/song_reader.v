@@ -3,6 +3,8 @@
 `define REST_NOTE 6'b0
 `define REST_DURATION 6'b0
 
+`define KEYBOARD_NOTE_DURATION 5'd16
+
 module song_reader(
     input clk,
     input reset,
@@ -96,9 +98,9 @@ module song_reader(
     
     // Compute outputs
     assign song_done = current_state == `IDLE_STATE;
-    assign new_note = current_state == `PLAY_NOTE_STATE; //only lasts one cycle
-    assign note = current_state == `PLAY_NOTE_STATE ? note_data_note : `REST_NOTE; //TODO: see if this is necessary or if I can just do assign . = note_data_note
-    assign duration = current_state == `PLAY_NOTE_STATE ? note_data_duration : `REST_DURATION; // "
+    wire sr_new_note = current_state == `PLAY_NOTE_STATE; //only lasts one cycle
+    wire [5:0] sr_note = current_state == `PLAY_NOTE_STATE ? note_data_note : `REST_NOTE; //TODO: see if this is necessary or if I can just do assign . = note_data_note
+    wire [5:0] sr_duration = current_state == `PLAY_NOTE_STATE ? note_data_duration : `REST_DURATION; // "
 
 
 
@@ -116,5 +118,19 @@ module song_reader(
         .new_key(new_key),
         .key_code(key_code)
     );
+
+    wire [5:0] keyboard_note;
+    keyboard_signal_rom ks_rom( //case statement mapping the 11 bits keyboard_signal to the keyboard note that can be played
+        .keyboard_signal(ps2_data),
+        .keyboard_note(keyboard_note)
+    );
+
+
+
+    // Combine sr (logic from lab4 and songs) with ksr logic
+    // to override sr when ksr does something
+    assign new_note = new_key | sr_new_note;
+    assign note = new_key ? keyboard_note : sr_note; //keyboard has higher priority over song reader
+    assign duration = new_key ? `KEYBOARD_NOTE_DURATION : sr_duration;
 endmodule
 

@@ -30,6 +30,13 @@ module keyboard_signal_receiver(
     // Number of read bits. 0 to 11
     wire [3:0] read_bit_index; //enough memory for 0 to 16
     reg [3:0] next_read_bit_index;
+    // When ps2_clk goes up, this should increment if in the SAVING_INPUT state
+    always @(*) begin
+        casex ({p_ps2_clk, ps2_clk, state})
+            {1'b0, 1'b1, `SAVING_INPUT_STATE}: next_read_bit_index = read_index + 1; //clock rose in the saving_input state
+            default: next_read_bit_index = 0;
+        endcase
+    end
     dffr #(4) read_bit_index_dff(
         .clk(clk),
         .r(reset),
@@ -62,14 +69,25 @@ module keyboard_signal_receiver(
     
     // Compute next state
     always @(*) begin
-        case ({state, ps2_clk, p_ps2_clk, })
-            {`IDLE_STATE, 1'b1, 1'b0}: next_state = `SAVING_INPUT_STATE;
+        casex ({state, ps2_clk, p_ps2_clk, read_bit_index})
+            // The following lines are about advancing the state (incrementing). Otherwise, it stays at the same state because of the default case
+            {`IDLE_STATE, 1'b1, 1'b0, 4'bx}: next_state = `SAVING_INPUT_STATE;
                 // in IDLE state but the clk just went down so now it's time for capture
-            {`SAVING_INPUT_STATE, 1'bx, 1'bx}
-
-            {`}
+            {`SAVING_INPUT_STATE, 1'bx, 1'bx, 4'd11}: next_state = `TRANSMIT_KEY_STATE;
+            {`TRANSMIT_KEY_STATE, 1'bx, 1'bx, 1'bx}: next_state = `IDLE_STATE; //only for one cycle does it need to pulse to show the key
+            default: next_state = state;
         endcase
     end
+
+
+    // Calculate the next key_code. Should be if in IDLE_STATE changing based on read_bit_index
+    always @(*) begin
+        casex ({state, ps2_clk, p_ps2_clk})
+            {`SAVING_INPUT, 1'b0, 1'b1}: next_key_code = key_code | (1'b1 << read_bit_index);
+            default: next_key_code = key_code;
+        endcase
+    end
+    
 endmodule
 
 
