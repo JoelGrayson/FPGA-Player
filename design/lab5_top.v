@@ -66,6 +66,10 @@ module lab5_top(
         .locked(LED0),
         .clk_in1(sysclk)
     );
+    
+    
+    
+    
 
 
   
@@ -260,11 +264,20 @@ module lab5_top(
    
 
     // Oscilloscope
-    oscilloscope oscilloscope_device(
-        .clk(clk), //fpga clk
+    oscilloscope osc (
+        .clk(clk_100), //fpga clk
         .reset(reset),
         .ps2_clk(ps2_clk), //pmod
         .ps2_data(ps2_data)
     );
+    
+    
+    ila_0 my_ila_for_debugging_ps2 (
+        .clk(clk_100), // input wire clk
+        .probe0(ps2_clk), // input wire [0:0]  probe0  
+        .probe1(ps2_data), // input wire [0:0]  probe1 
+        .probe2(clk_100) // input wire [0:0]  probe2
+    );
+    
 endmodule
 
