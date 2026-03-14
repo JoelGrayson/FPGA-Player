@@ -15,7 +15,7 @@ module keyboard_signal_receiver(
     output wire new_key, //one-pulse indicating new key pressed and new note should be played
     output wire [10:0] key_code //11 bits
 );
-    // Use ILA to record the signal
+    // Use ILA to record the signal coming from the keyboard in real life to ensure there is no debouncing necessary
     // Shows what the oscilloscope would have read
     ila_0 oscilloscope_reader ( //my_ila_for_debugging_ps2
         .clk(clk), // input wire clk (clk100)
@@ -54,6 +54,7 @@ module keyboard_signal_receiver(
     always @(*) begin
         casex ({p_ps2_clk, ps2_clk, state})
             {1'b0, 1'b1, `SAVING_INPUT_STATE}: next_read_bit_index = read_bit_index + 1; //clock rose in the saving_input state
+            {1'bx, 1'bx, `SAVING_INPUT_STATE}: next_read_bit_index = read_bit_index; //otherwise, just keep the next_read_bit the same
             default: next_read_bit_index = 0;
         endcase
     end
@@ -67,7 +68,7 @@ module keyboard_signal_receiver(
 
     // Compute next state
     always @(*) begin
-        casex ({state, ps2_clk, p_ps2_clk, read_bit_index})
+        casex ({state, p_ps2_clk, ps2_clk, read_bit_index})
             // The following lines are about advancing the state (incrementing). Otherwise, it stays at the same state because of the default case
             {`IDLE_STATE, 1'b1, 1'b0, 4'bx}: next_state = `SAVING_INPUT_STATE;
                 // in IDLE state but the clk just went down so now it's time for capture
