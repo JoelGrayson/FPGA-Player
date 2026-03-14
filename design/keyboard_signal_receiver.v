@@ -9,7 +9,7 @@ module keyboard_signal_receiver(
     input wire reset,
 
     // Passed down from the .xdc file (PMOD)
-    input wire ps2_clk,
+    input wire ps2_clk, //ps2_clk_in
     input wire ps2_data,
 
     output wire new_key, //one-pulse indicating new key pressed and new note should be played
@@ -23,6 +23,17 @@ module keyboard_signal_receiver(
         .probe1(ps2_data), // input wire [0:0]  probe1 
         .probe2(clk) // input wire [0:0]  probe2. Not necessary anymore. Was useful to confirm that the clock cycle was in sync with the ILA
     );
+
+
+    // Save the previous clock signal so you can see if the clock signal is rising
+    wire p_ps2_clk;
+    dffr #(1) p_ps2_clk_dff(
+        .d(ps2_clk),
+        .q(p_ps2_clk),
+        .clk(clk),
+        .r(reset)
+    );
+
 
     // State (control)
     wire [2:0] state; //current state. 100 is IDLE, 010 is SAVING_INPUT, and 001 is TRANSMIT_KEY
@@ -66,14 +77,6 @@ module keyboard_signal_receiver(
 
 
 
-    // Save the previous clock signal so you can see if the clock signal is rising
-    wire p_ps2_clk;
-    dffr #(1) p_ps2_clk_dff(
-        .d(ps2_clk),
-        .q(p_ps2_clk),
-        .clk(clk),
-        .r(reset)
-    );
     
     // Compute next state
     always @(*) begin
