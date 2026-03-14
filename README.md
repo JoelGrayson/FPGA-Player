@@ -1,7 +1,10 @@
-# Lab 5
+# FPGA Player
 
-After running init_project.tcl, make sure to add the my_macros.vh file too.
+Video demo of keyboard: https://youtu.be/Ti2OOpQMLXY
+[![FPGA Player Demo](thumbnail.png)](https://youtu.be/Ti2OOpQMLXY)
 
-wave_display_og is for 1/4 of the screen, as seen in lab 5
-wave_display is for the full screen, as seen in the final project
+
+## Notes
+wave_display_og is for 1/4 of the screen, as used initially
+wave_display is for the full screen
 
