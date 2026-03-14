@@ -137,7 +137,8 @@ module song_reader(
 
     ila_1 key_code_reader (
 	    .clk(clk), // input wire clk
-        .probe0(keyboard_note) // input wire [5:0] probe0
+        .probe0(keyboard_note), // input wire [5:0] probe0
+        .probe1(new_key) // input wire [0:0]  probe1
     );
     
 endmodule
