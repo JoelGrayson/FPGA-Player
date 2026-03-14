@@ -135,10 +135,14 @@ module song_reader(
     assign duration = new_key ? `KEYBOARD_NOTE_DURATION : sr_duration;
 
 
+    // keyboard_note (probe 1) is the note we have played from the keyboard_signal_rom
+    // probe 2 is helpful for trigger
+    // probe 3 is helpful to see what the keyboard said literally from the scope
     ila_1 key_code_reader (
 	    .clk(clk), // input wire clk
         .probe0(keyboard_note), // input wire [5:0] probe0
-        .probe1(new_key) // input wire [0:0]  probe1
+        .probe1(new_key), // input wire [0:0]  probe1
+    	.probe2(key_code) //input wire [10:0]  probe2
     );
     
 endmodule
