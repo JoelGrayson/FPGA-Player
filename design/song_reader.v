@@ -3,8 +3,6 @@
 `define REST_NOTE 6'b0
 `define REST_DURATION 6'b0
 
-`define KEYBOARD_NOTE_DURATION 6'd16
-
 module song_reader(
     input clk,
     input reset,
@@ -20,13 +18,7 @@ module song_reader(
     output [5:0] note, //note and duration from song_rom
     output [5:0] duration,
     
-    output new_note, //one-cycle pulse for note_player to remember note & duration and start playing
-
-
-    // For the keyboard to override and send its own note
-    input wire ps2_clk,
-    input wire ps2_data,
-    input wire ps2_reset
+    output new_note //one-cycle pulse for note_player to remember note & duration and start playing
 );
     // DFF storing current_state
     wire [`STATE_WIDTH-1:0] current_state;
@@ -99,62 +91,9 @@ module song_reader(
     
     // Compute outputs
     assign song_done = current_state == `IDLE_STATE;
-    wire sr_new_note = current_state == `PLAY_NOTE_STATE; //only lasts one cycle
-    wire [5:0] sr_note = current_state == `PLAY_NOTE_STATE ? note_data_note : `REST_NOTE; //TODO: see if this is necessary or if I can just do assign . = note_data_note
-    wire [5:0] sr_duration = current_state == `PLAY_NOTE_STATE ? note_data_duration : `REST_DURATION; // "
-
-
-
-
-    // Keyboard overwrites the existing signals
-    wire new_key;
-    wire [10:0] ps2_frame;
-    wire [7:0] ps2_key_code = ps2_frame[8:1];
-
-    keyboard_signal_receiver ksr(
-        .clk(clk),
-        .reset(ps2_reset),
-        .ps2_clk(ps2_clk),
-        .ps2_data(ps2_data),
-
-        .new_key(new_key),
-        .ps2_frame(ps2_frame)
-    );
-
-    wire [5:0] keyboard_note;
-    keyboard_signal_rom ks_rom( //case statement mapping the 11 bits keyboard_signal to the keyboard note that can be played (just the 6 bits of the note, not the duration)
-        .ps2_key_code(ps2_key_code), //8 bits input
-        .keyboard_note(keyboard_note)  //6 bits output
-    );
-
-
-    // Need to use p_new_key instead of new_key because need one cycle for the duration/note to settle down for note_player to ingest it (setup time constraint)
-    wire p_new_key; //Value of new_key on clk cycle ago
-    dffr #(1) delay_new_key_dff(
-        .d(new_key),
-        .q(p_new_key),
-        .clk(clk),
-        .r(reset)
-    );
-
-
-    // Combine sr (logic from lab4 and songs) with ksr logic
-    // to override sr when ksr does something
-    assign new_note = p_new_key | sr_new_note;
-    assign note = p_new_key ? keyboard_note : sr_note; //keyboard has higher priority over song reader
-    assign duration = p_new_key ? `KEYBOARD_NOTE_DURATION : sr_duration;
-
-
-    // keyboard_note (probe 1) is the note we have played from the keyboard_signal_rom
-    // probe 2 is helpful for trigger
-    // probe 3 is helpful to see what the keyboard said literally from the scope
-    ila_1 ps2_frame_ila(
-	    .clk(clk), // input wire clk
-        .probe0(keyboard_note), // input wire [5:0] probe0
-        .probe1(new_key), // input wire [0:0]  probe1
-    	.probe2(ps2_frame), //input wire [10:0]  probe2
-        .probe3(ps2_key_code) // input wire [7:0]  probe3
-    );
+    assign new_note = current_state == `PLAY_NOTE_STATE; //only lasts one cycle
+    assign note = current_state == `PLAY_NOTE_STATE ? note_data_note : `REST_NOTE; //TODO: see if this is necessary or if I can just do assign . = note_data_note
+    assign duration = current_state == `PLAY_NOTE_STATE ? note_data_duration : `REST_DURATION; // "
 
 
     // Create another ILA to measure the output of song_reader. It should have a trigger of new_note (1 bit) and show what note (6 bit) and duration (6 bit) and new_key are for those

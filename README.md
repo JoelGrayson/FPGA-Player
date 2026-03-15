@@ -7,6 +7,7 @@ Video demo of keyboard: https://youtu.be/Ti2OOpQMLXY
 ## Notes
 wave_display_og is for 1/4 of the screen, as used initially
 wave_display is for the full screen
+The ILAs are not necessary except for debugging and figuring out what is going on when initially creating this codebase.
 
 
 ### Integration Commands

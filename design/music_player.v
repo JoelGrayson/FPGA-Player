@@ -85,11 +85,7 @@ module music_player(
         .note(note_to_play),
         .duration(duration_for_note),
         .new_note(new_note),
-        .note_done(note_done),
-
-        .ps2_clk(ps2_clk),
-        .ps2_data(ps2_data),
-        .ps2_reset(ps2_reset)
+        .note_done(note_done)
     );
     /*
     always @(posedge clk) begin  
@@ -99,6 +95,45 @@ module music_player(
         $display("song_reader new_note: %d", new_note);      
     end
     */
+
+// //   
+// //  ****************************************************************************
+// //      Keyboard Signal Receiver
+// //  ****************************************************************************
+// //  
+    wire keyboard_new_note;
+    wire keyboard_play;
+    wire [5:0] keyboard_duration;
+    wire [5:0] keyboard_note;
+
+    // // For testing BEGIN
+    // assign keyboard_play = 1'b0;
+    // assign keyboard_new_note = 1'b0;
+    // // END
+    
+    keyboard_reader keyboard_reader_device(
+        // Inputs
+        .clk(clk),
+        .reset(reset | reset_player),
+        .enabled(!play), //while a song is playing, don't be in keyboard mode
+        .note_done_pulse(note_done),
+
+        // PS2
+        .ps2_clk(ps2_clk),
+        .ps2_data(ps2_data),
+        .ps2_reset(ps2_reset),
+
+        // Outputs
+        .new_note_pulse(keyboard_new_note), //a one-pulse indicating new note should be played
+        .keyboard_play(keyboard_play), //should be true when it should be playing (for the whole duration of the note)
+        .duration(keyboard_duration),
+        .note(keyboard_note) //which note it is
+    );
+    
+
+
+
+    
 //   
 //  ****************************************************************************
 //      Note Player
@@ -117,10 +152,17 @@ module music_player(
     note_player note_player(
         .clk(clk),
         .reset(reset),
-        .play_enable(1'b1), //instead of play, it is always true so the keyboard can always play
-        .note_to_load(note_to_play),
-        .duration_to_load(duration_for_note),
-        .load_new_note(new_note),
+        .play_enable(keyboard_play | play), //play is from MCU/song_reader to indicate that the audio should be playing. If it is never set to false, then it will play indefinitely (never stop)
+            // keyboard_play is used to indicate that the note should be playing because the keyboard just hit it
+        .note_to_load(keyboard_play ? keyboard_note : note_to_play),
+        .duration_to_load(keyboard_play ? keyboard_duration : duration_for_note),
+        .load_new_note(keyboard_new_note | new_note),
+        // .play_enable(play), //play is from MCU/song_reader to indicate that the audio should be playing. If it is never set to false, then it will play indefinitely (never stop)
+            // keyboard_play is used to indicate that the note should be playing because the keyboard just hit it
+        //.note_to_load(note_to_play),
+        //.duration_to_load(duration_for_note),
+        //.load_new_note(new_note),
+
         .done_with_note(note_done),
         .beat(beat),
         .generate_next_sample(generate_next_sample),

@@ -2,6 +2,7 @@
 `define IDLE_STATE 3'b100
 `define SAVING_INPUT_STATE 3'b010 //uses read_bit_index
 `define TRANSMIT_KEY_STATE 3'b001
+//`define PLAYING_STATE 3'b111 //don't want to do 0001 because I already have the ILA used to accepting 3-bits for the state width
 `define DEFAULT_STATE `IDLE_STATE
 `define NUMBER_OF_CLK100_CYCLES_IN_A_PS2_CLK_CYCLE 8000 //was close to 8200
 `define CYCLE_TIMEOUT 3*`NUMBER_OF_CLK100_CYCLES_IN_A_PS2_CLK_CYCLE //3*8000 is 24,000 which fits in 16 bits
@@ -129,3 +130,4 @@ module keyboard_signal_receiver(
         .probe5(new_key) // input wire [0:0]  probe5
     );
 endmodule
+
