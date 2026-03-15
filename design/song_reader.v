@@ -94,15 +94,5 @@ module song_reader(
     assign new_note = current_state == `PLAY_NOTE_STATE; //only lasts one cycle
     assign note = current_state == `PLAY_NOTE_STATE ? note_data_note : `REST_NOTE; //TODO: see if this is necessary or if I can just do assign . = note_data_note
     assign duration = current_state == `PLAY_NOTE_STATE ? note_data_duration : `REST_DURATION; // "
-
-
-    // Create another ILA to measure the output of song_reader. It should have a trigger of new_note (1 bit) and show what note (6 bit) and duration (6 bit) and new_key are for those
-    ila_2 song_reader_ila(
-        .clk(clk), // input wire clk
-        .probe0(new_note), // input wire [0:0]  probe0  
-        .probe1(new_key), // input wire [0:0]  probe1 
-        .probe2(note), // input wire [5:0]  probe2 
-        .probe3(duration) // input wire [5:0]  probe3
-    );
 endmodule
 

@@ -44,16 +44,16 @@ module music_player(
 //   a pop when it resets the output sample.
 //
  
-    wire play;
+    wire song_reader_play;
     wire reset_player;
     wire [1:0] current_song;
     wire song_done;
-    mcu mcu(
+    mcu mcu( //mcu controls the song_reader but the keyboard_reader is a separate module
         .clk(clk),
         .reset(reset),
         .play_button(play_button),
         .next_button(next_button),
-        .play(play),
+        .play(song_reader_play),
         .reset_player(reset_player),
         .song(current_song),
         .song_done(song_done)
@@ -71,27 +71,26 @@ module music_player(
 //      Song Reader
 //  ****************************************************************************
 //
-    wire [5:0] note_to_play;
-    wire [5:0] duration_for_note;
-    assign curr_note = note_to_play;
-    wire new_note;
+    wire [5:0] song_reader_note; //FKA song_reader_note
+    wire [5:0] song_reader_duration; //FKA song_reader_duration
+    wire song_reader_new_note;
     wire note_done;
     song_reader song_reader(
         .clk(clk),
         .reset(reset | reset_player),
-        .play(play),
+        .play(song_reader_play),
         .song(current_song),
         .song_done(song_done),
-        .note(note_to_play),
-        .duration(duration_for_note),
-        .new_note(new_note),
+        .note(song_reader_note),
+        .duration(song_reader_duration),
+        .new_note(song_reader_new_note),
         .note_done(note_done)
     );
     /*
     always @(posedge clk) begin  
         $display("song_reader song_done: %d", play);
-        $display("song_reader note: %d", note_to_play);
-        $display("song_reader duration: %d", duration_for_note);
+        $display("song_reader note: %d", song_reader_note);
+        $display("song_reader duration: %d", song_reader_duration);
         $display("song_reader new_note: %d", new_note);      
     end
     */
@@ -115,7 +114,7 @@ module music_player(
         // Inputs
         .clk(clk),
         .reset(reset | reset_player),
-        .enabled(!play), //while a song is playing, don't be in keyboard mode
+        .enabled(!song_reader_play), //while a song is playing, don't be in keyboard mode
         .note_done_pulse(note_done),
 
         // PS2
@@ -130,10 +129,14 @@ module music_player(
         .note(keyboard_note) //which note it is
     );
     
-
-
-
+    // Merge info from song_reader and keyboard_reader
+    wire new_note = keyboard_new_note | song_reader_new_note;
+    wire play = keyboard_play | song_reader_play;
+    wire [5:0] note = keyboard_play ? keyboard_note : song_reader_note;
+    wire [5:0] duration = keyboard_play ? keyboard_duration : song_reader_duration;
+    assign curr_note = note; //outputted to VGA display
     
+
 //   
 //  ****************************************************************************
 //      Note Player
@@ -152,15 +155,15 @@ module music_player(
     note_player note_player(
         .clk(clk),
         .reset(reset),
-        .play_enable(keyboard_play | play), //play is from MCU/song_reader to indicate that the audio should be playing. If it is never set to false, then it will play indefinitely (never stop)
+        .play_enable(play), //play is from MCU/song_reader to indicate that the audio should be playing. If it is never set to false, then it will play indefinitely (never stop)
             // keyboard_play is used to indicate that the note should be playing because the keyboard just hit it
-        .note_to_load(keyboard_play ? keyboard_note : note_to_play),
-        .duration_to_load(keyboard_play ? keyboard_duration : duration_for_note),
-        .load_new_note(keyboard_new_note | new_note),
+        .note_to_load(note),
+        .duration_to_load(duration),
+        .load_new_note(new_note),
         // .play_enable(play), //play is from MCU/song_reader to indicate that the audio should be playing. If it is never set to false, then it will play indefinitely (never stop)
             // keyboard_play is used to indicate that the note should be playing because the keyboard just hit it
-        //.note_to_load(note_to_play),
-        //.duration_to_load(duration_for_note),
+        //.note_to_load(song_reader_note),
+        //.duration_to_load(song_reader_duration),
         //.load_new_note(new_note),
 
         .done_with_note(note_done),
@@ -213,4 +216,15 @@ module music_player(
         .valid_sample(sample_out0)
     );
 
+    // ila_2 measures what note is currently being played, regardless of whether it is from the song_reader or the keyboard_reader. It should have a trigger of new_note (1 bit) and show what note (6 bit) and duration (6 bit) and new_key are for those
+    ila_2 music_player_ila (
+        .clk(clk), // input wire clk
+        .probe0(keyboard_play), // input wire [0:0]  probe0  
+        .probe1(new_note), // input wire [0:0]  probe1 
+        .probe2(play), // input wire [0:0]  probe2 
+        .probe3(note), // input wire [5:0]  probe3 
+        .probe4(duration) // input wire [5:0]  probe4
+    );
+    // keyboard_play, new_note, play, note, duration
 endmodule
+

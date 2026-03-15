@@ -75,6 +75,7 @@ module keyboard_reader(
         || next_state == `KEYBOARD_READER_PLAYING_STATE; //added this line for timing issue where keyboard_play is no true when new_note_pulse occurs.
 
 
+    // ila_1 is useful for seeing what key is being sent out due to the PS2 signals
     // keyboard_note (probe 1) is the note we have played from the keyboard_signal_rom
     // probe 2 is helpful for trigger
     // probe 3 is helpful to see what the keyboard said literally from the scope
