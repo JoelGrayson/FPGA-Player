@@ -120,10 +120,12 @@ module song_reader(
         .key_code(key_code)
     );
 
+    wire [7:0] reversed_byte; //useful for debugging through ILA
     wire [5:0] keyboard_note;
     keyboard_signal_rom ks_rom( //case statement mapping the 11 bits keyboard_signal to the keyboard note that can be played (just the 6 bits of the note, not the duration)
         .key_code(key_code), //11 bits input
-        .keyboard_note(keyboard_note)  //6 bits output
+        .keyboard_note(keyboard_note),  //6 bits output
+        .reversed_byte(reversed_byte)
     );
 
 
@@ -142,7 +144,8 @@ module song_reader(
 	    .clk(clk), // input wire clk
         .probe0(keyboard_note), // input wire [5:0] probe0
         .probe1(new_key), // input wire [0:0]  probe1
-    	.probe2(key_code) //input wire [10:0]  probe2
+    	.probe2(key_code), //input wire [10:0]  probe2
+        .probe3(reversed_byte) // input wire [7:0]  probe3
     );
 endmodule
 

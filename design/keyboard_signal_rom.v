@@ -21,15 +21,17 @@
 `define PS2_J 8'h3B
 `define PS2_K 8'h42
 `define PS2_L 8'h4B
-
+// 01000110110
+// 10001101
 
 module keyboard_signal_rom(
     input wire [10:0] key_code, //11 bit signal. FKA keyboard_signal
-    output reg [5:0] keyboard_note //note to be played, doesn't include the duration
+    output reg [5:0] keyboard_note, //note to be played, doesn't include the duration
+    output wire [7:0] reversed_byte //useful for debugging through ILA in the parent
 );
     // From reality: 11**00011011**0. We only care about the bits in between. They are in reverse order from our scan set.
     wire [7:0] byte = key_code[9:2];
-    wire [7:0] reversed_byte = { byte[7], byte[6], byte[5], byte[4], byte[3], byte[2], byte[1], byte[0] }; //reverse order for it to match PS2_{letter}
+    assign reversed_byte = { byte[0], byte[1], byte[2], byte[3], byte[4], byte[5], byte[6], byte[7] }; //reverse order for it to match PS2_{letter}
     
     // Only use make codes to start playing a note
     always @(*) begin

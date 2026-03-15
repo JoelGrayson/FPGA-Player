@@ -18,19 +18,6 @@ module keyboard_signal_receiver(
     output wire new_key, //one-pulse indicating new key pressed and new note should be played
     output wire [10:0] key_code //11 bits
 );
-    // Use ILA to record the signal coming from the keyboard in real life to ensure there is no debouncing necessary
-    // Shows what the oscilloscope would have read
-    ila_0 oscilloscope_reader ( //my_ila_for_debugging_ps2
-        .clk(clk), // input wire clk (clk100)
-        .probe0(ps2_clk), // input wire [0:0]  probe0  
-        .probe1(ps2_data), // input wire [0:0]  probe1 
-        .probe2(state), // input wire [2:0]  probe2 
-        .probe3(key_code), // input wire [10:0]  probe3 
-        .probe4(read_bit_index), // input wire [3:0]  probe4 
-        .probe5(new_key) // input wire [0:0]  probe5
-    );
-
-
     // Save the previous clock signal so you can see if the clock signal is rising
     wire p_ps2_clk;
     dffr #(1) p_ps2_clk_dff(
@@ -127,4 +114,18 @@ module keyboard_signal_receiver(
         //.en(state != `IDLE_STATE) //the counter should only go up when the state is not in IDLE this way it is able to not keep counting when in IDLE
     );
     
+    
+    
+    
+    // Use ILA to record the signal coming from the keyboard in real life to ensure there is no debouncing necessary
+    // Shows what the oscilloscope would have read
+    ila_0 oscilloscope_reader ( //my_ila_for_debugging_ps2
+        .clk(clk), // input wire clk (clk100)
+        .probe0(ps2_clk), // input wire [0:0]  probe0  
+        .probe1(ps2_data), // input wire [0:0]  probe1 
+        .probe2(state), // input wire [2:0]  probe2 
+        .probe3(key_code), // input wire [10:0]  probe3 
+        .probe4(read_bit_index), // input wire [3:0]  probe4 
+        .probe5(new_key) // input wire [0:0]  probe5
+    );
 endmodule
