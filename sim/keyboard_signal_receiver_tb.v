@@ -1,3 +1,10 @@
+// Passed
+/* Testbench output:
+Inputted signal s which is 01101100011
+We expect the key_code to be 11000110110, which is what was measured from the oscilloscope
+What was gotten: 11000110110
+*/
+
 module keyboard_signal_receiver_tb;
     reg clk, reset;
 

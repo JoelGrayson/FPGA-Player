@@ -101,7 +101,7 @@ module keyboard_signal_receiver(
         casex ({reset, state, p_ps2_clk, ps2_clk})
             {1'b1, { 5{1'bx} } }: next_key_code = 11'b0; //should be 0 when reset
             {1'b0, `IDLE_STATE, 1'bx, 1'bx}: next_key_code = 11'b0; //should be 0 when idle
-            {1'b0, `SAVING_INPUT_STATE, 1'b0, 1'b1}: next_key_code = key_code | (ps2_data << read_bit_index);
+            {1'b0, `SAVING_INPUT_STATE, 1'b0, 1'b1}: next_key_code = key_code | ({10'b0, ps2_data} << read_bit_index);
             default: next_key_code = key_code;
         endcase
     end
