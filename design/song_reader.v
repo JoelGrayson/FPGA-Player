@@ -108,7 +108,8 @@ module song_reader(
 
     // Keyboard overwrites the existing signals
     wire new_key;
-    wire [10:0] key_code;
+    wire [10:0] ps2_frame;
+    wire [7:0] ps2_key_code = ps2_frame[8:1];
 
     keyboard_signal_receiver ksr(
         .clk(clk),
@@ -117,15 +118,13 @@ module song_reader(
         .ps2_data(ps2_data),
 
         .new_key(new_key),
-        .key_code(key_code)
+        .ps2_frame(ps2_frame)
     );
 
-    wire [7:0] reversed_byte; //useful for debugging through ILA
     wire [5:0] keyboard_note;
     keyboard_signal_rom ks_rom( //case statement mapping the 11 bits keyboard_signal to the keyboard note that can be played (just the 6 bits of the note, not the duration)
-        .key_code(key_code), //11 bits input
-        .keyboard_note(keyboard_note),  //6 bits output
-        .reversed_byte(reversed_byte)
+        .ps2_key_code(ps2_key_code), //8 bits input
+        .keyboard_note(keyboard_note)  //6 bits output
     );
 
 
@@ -140,12 +139,12 @@ module song_reader(
     // keyboard_note (probe 1) is the note we have played from the keyboard_signal_rom
     // probe 2 is helpful for trigger
     // probe 3 is helpful to see what the keyboard said literally from the scope
-    ila_1 key_code_reader (
+    ila_1 ps2_frame_reader (
 	    .clk(clk), // input wire clk
         .probe0(keyboard_note), // input wire [5:0] probe0
         .probe1(new_key), // input wire [0:0]  probe1
-    	.probe2(key_code), //input wire [10:0]  probe2
-        .probe3(reversed_byte) // input wire [7:0]  probe3
+    	.probe2(ps2_frame), //input wire [10:0]  probe2
+        .probe3(ps2_key_code) // input wire [7:0]  probe3
     );
 endmodule
 

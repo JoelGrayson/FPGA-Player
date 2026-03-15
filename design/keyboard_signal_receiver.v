@@ -16,7 +16,7 @@ module keyboard_signal_receiver(
     input wire ps2_data,
 
     output wire new_key, //one-pulse indicating new key pressed and new note should be played
-    output wire [10:0] key_code //11 bits
+    output wire [10:0] ps2_frame //11 bits
 );
     // Save the previous clock signal so you can see if the clock signal is rising
     wire p_ps2_clk;
@@ -74,22 +74,22 @@ module keyboard_signal_receiver(
 
 
     // The data from the PS/2. Comes in 11 bit packet.
-    reg [10:0] next_key_code;
+    reg [10:0] next_ps2_frame;
     dffr #(11) ps2_seq_dff(
-        .d(next_key_code),
-        .q(key_code),
+        .d(next_ps2_frame),
+        .q(ps2_frame),
         .clk(clk),
         .r(reset)
     );
 
 
-    // Calculate the next key_code. Should be if in IDLE_STATE changing based on read_bit_index
+    // Calculate the next ps2_frame. Should be if in IDLE_STATE changing based on read_bit_index
     always @(*) begin
         casex ({reset, state, p_ps2_clk, ps2_clk})
-            {1'b1, { 5{1'bx} } }: next_key_code = 11'b0; //should be 0 when reset
-            {1'b0, `IDLE_STATE, 1'bx, 1'bx}: next_key_code = 11'b0; //should be 0 when idle
-            {1'b0, `SAVING_INPUT_STATE, 1'b0, 1'b1}: next_key_code = key_code | ({10'b0, ps2_data} << read_bit_index);
-            default: next_key_code = key_code;
+            {1'b1, { 5{1'bx} } }: next_ps2_frame = 11'b0; //should be 0 when reset
+            {1'b0, `IDLE_STATE, 1'bx, 1'bx}: next_ps2_frame = 11'b0; //should be 0 when idle
+            {1'b0, `SAVING_INPUT_STATE, 1'b0, 1'b1}: next_ps2_frame = ps2_frame | ({10'b0, ps2_data} << read_bit_index);
+            default: next_ps2_frame = ps2_frame;
         endcase
     end
     
@@ -124,7 +124,7 @@ module keyboard_signal_receiver(
         .probe0(ps2_clk), // input wire [0:0]  probe0  
         .probe1(ps2_data), // input wire [0:0]  probe1 
         .probe2(state), // input wire [2:0]  probe2 
-        .probe3(key_code), // input wire [10:0]  probe3 
+        .probe3(ps2_frame), // input wire [10:0]  probe3 
         .probe4(read_bit_index), // input wire [3:0]  probe4 
         .probe5(new_key) // input wire [0:0]  probe5
     );

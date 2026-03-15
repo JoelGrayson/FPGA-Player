@@ -25,17 +25,14 @@
 // 10001101
 
 module keyboard_signal_rom(
-    input wire [10:0] key_code, //11 bit signal. FKA keyboard_signal
-    output reg [5:0] keyboard_note, //note to be played, doesn't include the duration
-    output wire [7:0] reversed_byte //useful for debugging through ILA in the parent
+    input wire [7:0] ps2_key_code, //8 bit signal. FKA keyboard_signal
+    output reg [5:0] keyboard_note //note to be played, doesn't include the duration
 );
-    // From reality: 11**00011011**0. We only care about the bits in between. They are in reverse order from our scan set.
-    wire [7:0] byte = key_code[9:2];
-    assign reversed_byte = { byte[0], byte[1], byte[2], byte[3], byte[4], byte[5], byte[6], byte[7] }; //reverse order for it to match PS2_{letter}
-    
+    // From reality: 11**00011011**0. We only care about the bits in between for our scan set.
+   
     // Only use make codes to start playing a note
     always @(*) begin
-        casex (reversed_byte) //don't care what first bit (start bit) and last bit (stop bit) are. Only care about the middle 8 bits. Parity is not checked here.
+        casex (ps2_key_code) //don't care what first bit (start bit) and last bit (stop bit) are. Only care about the middle 8 bits. Parity is not checked here.
             `PS2_A: keyboard_note = `A_NOTE;
             `PS2_S: keyboard_note = `S_NOTE;
             `PS2_D: keyboard_note = `D_NOTE;
@@ -52,7 +49,7 @@ module keyboard_signal_rom(
 
     // // Only use make codes to start playing a note
     // always @(*) begin
-    //     casex (key_code) //don't care what first bit (start bit) and last bit (stop bit) are. Only care about the middle 8 bits. Parity is not checked here.
+    //     casex (ps2_frame) //don't care what first bit (start bit) and last bit (stop bit) are. Only care about the middle 8 bits. Parity is not checked here.
     //         11'bx00000000xx: // Just in case
     //             keyboard_note = `REST_NOTE;
     //         11'bx00111000xx: //A

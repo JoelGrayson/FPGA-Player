@@ -1,7 +1,7 @@
 // Passed
 /* Testbench output:
 Inputted signal s which is 01101100011
-We expect the key_code to be 11000110110, which is what was measured from the oscilloscope
+We expect the ps2_frame to be 11000110110, which is what was measured from the oscilloscope
 What was gotten: 11000110110
 */
 
@@ -11,7 +11,7 @@ module keyboard_signal_receiver_tb;
     reg ps2_clk;
     reg ps2_data;
     wire new_key;
-    wire [10:0] key_code;
+    wire [10:0] ps2_frame;
 
     // Reset and clk
     initial begin
@@ -30,7 +30,7 @@ module keyboard_signal_receiver_tb;
 
         // Outputs
         .new_key(new_key),
-        .key_code(key_code)
+        .ps2_frame(ps2_frame)
     );
 
 
@@ -101,8 +101,8 @@ module keyboard_signal_receiver_tb;
     always @(*) begin 
         if (new_key == 1'b1) begin //display what the output result is
             $display("Inputted signal s which is 01101100011"); //01101100011 is indeed what the ground truth was measured to be when I pressed the S key (both from the scope and ILA in hw_ila_2)
-            $display("We expect the key_code to be 11000110110, which is what was measured from the oscilloscope");
-            $display("What was gotten: %b", key_code);
+            $display("We expect the ps2_frame to be 11000110110, which is what was measured from the oscilloscope");
+            $display("What was gotten: %b", ps2_frame);
         end
     end
 endmodule
