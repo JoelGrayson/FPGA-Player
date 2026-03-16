@@ -1,14 +1,51 @@
 // Inspired by tcg_rom
 
-`define A_NOTE 6'd37
-`define S_NOTE 6'd39
-`define D_NOTE 6'd40
-`define F_NOTE 6'd44
-`define G_NOTE 6'd47
-`define H_NOTE 6'd48
-`define J_NOTE 6'd49
-`define K_NOTE 6'd50
-`define L_NOTE 6'd51
+// notes from song_rom
+`define C3      6'd28
+`define C3SHARP 6'd29
+`define D3      6'd30
+`define D3SHARP 6'd31
+`define E3      6'd32
+`define F3      6'd33
+`define F3SHARP 6'd34
+`define G3      6'd35
+`define G3SHARP 6'd36
+`define A4      6'd37
+`define A4SHARP 6'd38
+`define B4      6'd39
+`define C4      6'd40
+`define C4SHARP 6'd41
+`define D4      6'd42
+`define D4SHARP 6'd43
+`define E4      6'd44
+`define F4      6'd45
+`define F4SHARP 6'd46
+`define G4      6'd47
+`define G4SHARP 6'd48
+`define A5      6'd49
+`define A5SHARP 6'd50
+`define B5      6'd51
+
+// Map keys to the song notes
+`define A_KEY `C3
+`define S_KEY `D3
+`define D_KEY `E3
+`define F_KEY `F3
+`define G_KEY `G3
+`define H_KEY `A4
+`define J_KEY `B4
+`define K_KEY `C4
+`define L_KEY `D4
+
+`define W_KEY `C3SHARP
+`define E_KEY `D3SHARP
+
+`define T_KEY `F3SHARP
+`define Y_KEY `G3SHARP
+
+`define O_KEY `C4SHARP
+`define P_KEY `D4SHARP
+
 `define REST_NOTE 6'd0 //nothing played
 
 // From scan set 2: https://webdocs.cs.ualberta.ca/~amaral/courses/329/labs/scancodes.html
@@ -21,6 +58,14 @@
 `define PS2_J 8'h3B
 `define PS2_K 8'h42
 `define PS2_L 8'h4B
+
+`define PS2_W 8'h1D
+`define PS2_E 8'h24
+`define PS2_T 8'h2C
+`define PS2_Y 8'h35
+`define PS2_O 8'h44
+`define PS2_P 8'h4D
+
 // 01000110110
 // 10001101
 
@@ -33,17 +78,24 @@ module keyboard_signal_rom(
     // Only use make codes to start playing a note
     always @(*) begin
         casex (ps2_key_code) //don't care what first bit (start bit) and last bit (stop bit) are. Only care about the middle 8 bits. Parity is not checked here.
-            `PS2_A: keyboard_note = `A_NOTE;
-            `PS2_S: keyboard_note = `S_NOTE;
-            `PS2_D: keyboard_note = `D_NOTE;
-            `PS2_F: keyboard_note = `F_NOTE;
-            `PS2_G: keyboard_note = `G_NOTE;
-            `PS2_H: keyboard_note = `H_NOTE; // H_NOTE (assign the key code as appropriate if you wish to define `H_NOTE`)
-            `PS2_J: keyboard_note = `J_NOTE; // J_NOTE
-            `PS2_K: keyboard_note = `K_NOTE; // K_NOTE
-            `PS2_L: keyboard_note = `L_NOTE; // L_NOTE
+            `PS2_A: keyboard_note = `A_KEY;
+            `PS2_S: keyboard_note = `S_KEY;
+            `PS2_D: keyboard_note = `D_KEY;
+            `PS2_F: keyboard_note = `F_KEY;
+            `PS2_G: keyboard_note = `G_KEY;
+            `PS2_H: keyboard_note = `H_KEY; // H_NOTE (assign the key code as appropriate if you wish to define `H_NOTE`)
+            `PS2_J: keyboard_note = `J_KEY; // J_NOTE
+            `PS2_K: keyboard_note = `K_KEY; // K_NOTE
+            `PS2_L: keyboard_note = `L_KEY; // L_NOTE
+
+            `PS2_W: keyboard_note = `W_KEY;
+            `PS2_E: keyboard_note = `E_KEY;
+            `PS2_T: keyboard_note = `T_KEY;
+            `PS2_Y: keyboard_note = `Y_KEY;
+            `PS2_O: keyboard_note = `O_KEY;
+            `PS2_P: keyboard_note = `P_KEY;
             
-            default: keyboard_note = `REST_NOTE;
+            default: keyboard_note = `REST_NOTE; //space bar clears
         endcase
     end
 

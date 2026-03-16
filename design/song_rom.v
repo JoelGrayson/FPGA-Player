@@ -80,8 +80,8 @@ module song_rom (
     assign memory[  60  ] = {6'd35, 6'd9}   ;   // Note: 3G
     assign memory[  61  ] = {6'd37, 6'd9}   ;   // Note: 4A
     assign memory[  62  ] = {6'd30, 6'd9}   ;   // Note: 3D
-    assign memory[  63  ] = {6'd42, 6'd9}   ;   // Note: 4D
-    
+    assign memory[  63  ] = {6'd0, 6'd26}   ;   // Note: rest
+
     // Third song
     assign memory[  64  ] = {6'd43, 6'd6}   ;   // Note: 4D#Eb
     assign memory[  65  ] = {6'd44, 6'd8}   ;   // Note: 4E
