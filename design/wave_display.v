@@ -83,6 +83,18 @@ module wave_display (
 //     // END (4)
 
     wire ntd_is_pixel_on;
+
+    // Show an A on the screen to test that it works
+    wire test_is_pixel_on;
+    letter_box test_letter_box( //puts an A at 300, `WAVE_START_Y
+        .in_region(x > 300 && x < 300 + 8 && y > `WAVE_START_Y && y < `WAVE_START_Y + 8),
+        .rel_x(x - 300),
+        .rel_y(y - `WAVE_START_Y),
+        .letter(1), //A
+        .is_second_char(0),
+        .is_pixel_on(test_is_pixel_on)
+    );
+    
     // BEGIN note_text_display stuff
     note_text_display ntd(
         .clk(clk),
@@ -106,5 +118,5 @@ module wave_display (
     // END note_text_display stuff
 
 
-    assign valid_pixel = wave_is_pixel_on | ntd_is_pixel_on;
+    assign valid_pixel = wave_is_pixel_on | ntd_is_pixel_on | test_is_pixel_on;
 endmodule

@@ -18,7 +18,15 @@ module letter_box_tb;
         .is_pixel_on(is_pixel_on)
     );
     
-    wire expected_is_pixel_on;
+    task verify_is_pixel_on
+        input expected_is_pixel_on;
+        begin
+            if (is_pixel_on != expected_is_pixel_on) begin
+                $display("FAIL: is_pixel_on should be %b but got %b", expected_is_pixel_on, is_pixel_on);
+            end
+            // else passed
+        end
+    endtask
     
     initial begin
         in_region = 1'b1; //for the purposes of this testbench I am going to set to 1
@@ -31,9 +39,19 @@ module letter_box_tb;
         #10;
         
         $display("dut.tcgrom_starting_addr is %h. Expected 0x008", dut.tcgrom_starting_addr);
-        expected = 1'b0;
-        if (is_pixel_on != expected_is_pixel_on) $display("is_pixel_on should be %b but got %b", expected_is_pixel_on, is_pixel_on);
+        verify_is_pixel_on(1'b0);
+
+        rel_x = 0;
+        rel_y = 3;
+        #10;
+        verify_is_pixel_on(1'b1);
+
+
+        rel_x = 0; rel_y = 2; #10; verify_is_pixel_on(1'b1);
+
+        rel_x = 2; rel_y = 2; #10; verify_is_pixel_on(1'b0);
         
+        $display("If nothing printed, all tests passed");
     end
 endmodule
 
