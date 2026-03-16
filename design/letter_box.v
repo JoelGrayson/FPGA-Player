@@ -11,8 +11,8 @@
 
 module letter_box(
     input wire in_region,
-    input wire [7:0] rel_x,
-    input wire [7:0] rel_y,
+    input wire [3:0] rel_x, //0 to 7
+    input wire [3:0] rel_y,
     input wire [3:0] letter,
     input wire is_second_char, //if the letter is A# and is_second_char is 1, show #. if 0, show A
 

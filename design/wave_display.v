@@ -9,8 +9,9 @@
 
 `define MIDDLE_X `INIT_X + (`WIDTH / 2)
 // TEXT_END_X/Y is TEXT_START_X/Y + 256
-`define TEXT_START_Y (`INIT_Y + (`HEIGHT / 2'd2) + 15 + 10)
+`define TEXT_START_Y (`INIT_Y + (`HEIGHT / 2'd2) + 15 + 40)
 `define TEXT_START_X `MIDDLE_X - 128
+`define TEXT_SECTION_WIDTH 288 //32 * 9
 
 module wave_display (
     input clk,
@@ -113,7 +114,7 @@ module wave_display (
             && y <= `TEXT_START_Y + 256
             // x is 255 in the center of the screen
             && x >= `TEXT_START_X
-            && x <= `TEXT_START_X + 256
+            && x <= `TEXT_START_X + `TEXT_SECTION_WIDTH
         ),
         
         .is_pixel_on(ntd_is_pixel_on)
