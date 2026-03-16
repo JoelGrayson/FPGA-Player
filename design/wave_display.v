@@ -1,5 +1,6 @@
 `define WHITE 24'hFFFFFF
 `define BLACK 24'h000000
+`define TEXT_COLOR 24'h00ff00 //nice retro phosphor green
 
 `define INIT_X 11'd88
 `define INIT_Y 10'd32
@@ -80,7 +81,6 @@ module wave_display (
                          & is_y_in_wave
                          & valid
                          & is_x_beyond_artifact;
-    assign { r, g, b } = `WHITE; //rgb will be blacked out if valid_pixel is false by the wave_display_top module
 //     // END (4)
 
     wire ntd_is_pixel_on;
@@ -119,7 +119,9 @@ module wave_display (
     
     
     // END note_text_display stuff
-
-
     assign valid_pixel = wave_is_pixel_on | ntd_is_pixel_on | test_is_pixel_on;
+
+
+    // rgb will be blacked out if valid_pixel is false by the wave_display_top module
+    assign { r, g, b } = wave_is_pixel_on ? `WHITE : `TEXT_COLOR; //wave is white, letters are textcolor
 endmodule
