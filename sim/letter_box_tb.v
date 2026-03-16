@@ -1,6 +1,10 @@
 `timescale 1ns/1ps
 
-// Try inputting A# in note_text_display with .is_second_char(0) and seeing that when you do the appropriate x and y values it is indeed setting the correct is_pixel_on values. Try it with .is_second_char(1) and see that it is showing a # sign.
+/* Passed. Output
+dut.tcgrom_starting_addr is 008. Expected 0x008
+If nothing printed, all tests passed
+*/
+
 
 module letter_box_tb;
     reg in_region;
@@ -18,7 +22,7 @@ module letter_box_tb;
         .is_pixel_on(is_pixel_on)
     );
     
-    task verify_is_pixel_on
+    task verify_is_pixel_on;
         input expected_is_pixel_on;
         begin
             if (is_pixel_on != expected_is_pixel_on) begin
@@ -44,12 +48,14 @@ module letter_box_tb;
         rel_x = 0;
         rel_y = 3;
         #10;
-        verify_is_pixel_on(1'b1);
+        verify_is_pixel_on(1'b0);
 
 
-        rel_x = 0; rel_y = 2; #10; verify_is_pixel_on(1'b1);
+        rel_x = 0; rel_y = 2; #10; verify_is_pixel_on(1'b0);
 
-        rel_x = 2; rel_y = 2; #10; verify_is_pixel_on(1'b0);
+        rel_x = 2; rel_y = 2; #10; verify_is_pixel_on(1'b1);
+
+        rel_x = 4; rel_y = 1; #10; verify_is_pixel_on(1'b1);
         
         $display("If nothing printed, all tests passed");
     end
