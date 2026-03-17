@@ -26,6 +26,7 @@ module music_player(
     output wire [15:0] sample_out,
 
     output wire [5:0] curr_note,
+    output wire new_note,
 
     input wire ps2_clk,
     input wire ps2_data,
@@ -130,7 +131,7 @@ module music_player(
     );
     
     // Merge info from song_reader and keyboard_reader
-    wire new_note = keyboard_new_note | song_reader_new_note;
+    assign new_note = keyboard_new_note | song_reader_new_note;
     wire play = keyboard_play | song_reader_play;
     wire [5:0] note = keyboard_play ? keyboard_note : song_reader_note;
     wire [5:0] duration = keyboard_play ? keyboard_duration : song_reader_duration;

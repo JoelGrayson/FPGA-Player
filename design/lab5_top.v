@@ -150,6 +150,7 @@ module lab5_top(
 //  ****************************************************************************
 //       
     wire [5:0] curr_note;
+    wire new_note;
     wire new_frame, new_frame_1;
     wire [15:0] codec_sample, flopped_sample;
     wire new_sample, flopped_new_sample;
@@ -162,6 +163,7 @@ module lab5_top(
         .sample_out(codec_sample),
         .new_sample_generated(new_sample),
         .curr_note(curr_note),
+        .new_note(new_note),
 
         .ps2_clk(ps2_clk_in),
         .ps2_data(ps2_data_in),
@@ -263,6 +265,7 @@ module lab5_top(
 		.valid(vde),
 		.vsync(vsync),
         .curr_note(curr_note),
+        .new_note(new_note),
 		.r(r_1),
 		.g(g_1),
 		.b(b_1)

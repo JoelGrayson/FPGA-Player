@@ -2,21 +2,25 @@
 
 module note_text_display_tb();
     reg clk, reset;
-    reg [7:0] x, x, curr_y;
+    reg [8:0] x_scaled;
+    reg [7:0] y_scaled;
     reg in_region;
+    reg [5:0] curr_note;
+    reg new_note;
     wire is_pixel_on;
     
-    note_text_display dut(
+    note_text_display ntd(
         .clk(clk),
         .reset(reset),
-        .x(x),
-        .x(x),
-        .valid(valid),
-        .read_value(read_value),
-        .read_index(read_index),
-        .read_address(read_address),
-        .valid_pixel(valid_pixel),
-        .r(r), .g(g), .b(b)
+        
+        .x_scaled(x_scaled),
+        .y_scaled(y_scaled),
+
+        .curr_note(curr_note),
+        .new_note(new_note),
+        .in_region(in_region),
+        
+        .is_pixel_on(is_pixel_on)
     );
    
     // Clock and reset

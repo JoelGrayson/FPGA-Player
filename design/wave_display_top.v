@@ -12,6 +12,7 @@ module wave_display_top(
     input vsync,
 
     input wire [5:0] curr_note,
+    input wire new_note,
     
     // Outputted to VGA controller
     output [7:0] r,
@@ -61,6 +62,7 @@ module wave_display_top(
         .read_index(read_index),
         .valid_pixel(valid_pixel),
         .curr_note(curr_note),
+        .new_note(new_note),
         .r(wd_r), .g(wd_g), .b(wd_b)
     );
 

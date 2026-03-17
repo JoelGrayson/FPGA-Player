@@ -22,6 +22,7 @@ module wave_display (
     input [7:0] read_value,
     input read_index,
     input wire [5:0] curr_note,
+    input wire new_note,
     output wire [8:0] read_address,
     output wire valid_pixel,
     output wire [7:0] r,
@@ -108,6 +109,7 @@ module wave_display (
         .y_scaled(y - `TEXT_START_Y),
 
         .curr_note(curr_note),
+        .new_note(new_note),
         .in_region(
             // y is in the bottom half of the screen
             y >= `TEXT_START_Y

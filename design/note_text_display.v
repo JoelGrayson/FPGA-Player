@@ -6,32 +6,30 @@ module note_text_display(
     input wire [7:0] y_scaled, //0 to 255
     input wire in_region, //bool indicating that in the region. When false, the y_scaled value can't be trusted
     input wire [5:0] curr_note, //0 to 63. Spans multiple octaves.
+    input wire new_note,
 
     output wire is_pixel_on
 );
     // BEGIN (1) curr_note_letter, p_note_letter, pp_note_letter
-    wire [3:0] curr_note_letter = curr_note == 0 ? 0 : (curr_note % 12); //so that 0 is nothing. A is 1.
-    wire [3:0] temp_p_note_letter, p_note_letter, pp_note_letter /*anteprevious*/;
-    dffr #(4) temp_p_note_letter_dff(
-        .d(curr_note_letter),
-        .q(temp_p_note_letter),
+    wire [3:0] curr_note_letter, p_note_letter, pp_note_letter /*anteprevious*/;
+    dffre #(4) curr_note_letter_dff(
+        .d(curr_note % 12), //so that 0 is nothing. A is 1.
+        .q(curr_note_letter),
         .clk(clk),
-        .r(reset)
+        .r(reset),
+        .en(new_note)
     );
-
-    wire note_just_changed = curr_note_letter != temp_p_note_letter; //indicates that you should shift from curr_note_letter to p_note_letter and p_note_letter to pp_note_letter
     dffre #(4) p_note_letter_dff(
-        .d(temp_p_note_letter),
+        .d(curr_note_letter),
         .q(p_note_letter),
         .clk(clk),
         .r(reset),
-        .en(note_just_changed)
+        .en(new_note)
     );
-
     dffre #(4) pp_note_letter_dff(
         .d(p_note_letter),
         .q(pp_note_letter),
-        .en(note_just_changed),
+        .en(new_note),
         .r(reset),
         .clk(clk)
     );
